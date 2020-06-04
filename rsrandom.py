@@ -27,6 +27,7 @@ class Character:
                         self.quest_points = (int)(row["Quest Points"])
                         self.skills = {"attack":(int)(row["Attack"]), "strength":(int)(row["Strength"]), "defence":(int)(row["Defence"]), "ranged":(int)(row["Ranged"]), "prayer":(int)(row["Prayer"]), "magic":(int)(row["Magic"]), "runecrafting":(int)(row["Runecrafting"]), "construction":(int)(row["Construction"]), "constitution":(int)(row["Constitution"]), "agility":(int)(row["Agility"]), "herblore":(int)(row["Herblore"]), "thieving":(int)(row["Thieving"]), "crafting":(int)(row["Crafting"]), "fletching":(int)(row["Fletching"]),  "slayer":(int)(row["Slayer"]),  "hunter":(int)(row["Hunter"]), "mining":(int)(row["Mining"]), "smithing":(int)(row["Smithing"]), "fishing":(int)(row["Fishing"]), "cooking":(int)(row["Cooking"]), "firemaking":(int)(row["Firemaking"]), "woodcutting":(int)(row["Woodcutting"]), "farming":(int)(row["Farming"])}
                         self.current_task = row["Current Task"] 
+                        self.total = row["Objectives Completed"]
                         if row["Quests Completed"] != "":
                             self.quests_completed.add(row["Quests Completed"])
                         
@@ -70,7 +71,7 @@ class Character:
         file_path = real_path+'/'+self.name+'.csv'
         with open(file_path, encoding="utf-16", mode='w', errors='ignore') as csv_file:
 
-            fieldnames = ['Name', 'Member', 'Attack', 'Strength', 'Defence', 'Ranged', 'Prayer', 'Magic', 'Runecrafting', 'Construction', 'Constitution', 'Agility', 'Herblore', 'Thieving', 'Crafting', 'Fletching', 'Slayer',	'Hunter', 'Mining', 'Smithing', 'Fishing', 'Cooking', 'Firemaking', 'Woodcutting', 'Farming', 'Quests Completed', 'Quests Unlocked', 'Quests Locked', 'Quest Points', 'Current Task']
+            fieldnames = ['Name', 'Member', 'Attack', 'Strength', 'Defence', 'Ranged', 'Prayer', 'Magic', 'Runecrafting', 'Construction', 'Constitution', 'Agility', 'Herblore', 'Thieving', 'Crafting', 'Fletching', 'Slayer',	'Hunter', 'Mining', 'Smithing', 'Fishing', 'Cooking', 'Firemaking', 'Woodcutting', 'Farming', 'Quests Completed', 'Quests Unlocked', 'Quests Locked', 'Quest Points', 'Current Task', 'Objectives Completed']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
 
@@ -80,7 +81,7 @@ class Character:
                 quests_locked = list(self.quests_locked)
 
 
-                base_line = {'Name': self.name, 'Member':self.member, 'Attack':self.skills["attack"], 'Strength':self.skills["strength"], 'Defence':self.skills["defence"], 'Ranged':self.skills["ranged"], 'Prayer':self.skills["prayer"], 'Magic':self.skills["magic"], 'Runecrafting':self.skills["runecrafting"], 'Construction':self.skills["construction"], 'Constitution':self.skills["constitution"], 'Agility':self.skills["agility"], 'Herblore':self.skills["herblore"], 'Thieving':self.skills["thieving"], 'Crafting':self.skills["crafting"], 'Fletching':self.skills["fletching"], 'Slayer':self.skills["slayer"],	'Hunter':self.skills["hunter"], 'Mining':self.skills["mining"], 'Smithing':self.skills["smithing"], 'Fishing':self.skills["fishing"], 'Cooking':self.skills["cooking"], 'Firemaking':self.skills["firemaking"], 'Woodcutting':self.skills["woodcutting"], 'Farming':self.skills["farming"], 'Quest Points':self.quest_points, 'Current Task':self.current_task}
+                base_line = {'Name': self.name, 'Member':self.member, 'Attack':self.skills["attack"], 'Strength':self.skills["strength"], 'Defence':self.skills["defence"], 'Ranged':self.skills["ranged"], 'Prayer':self.skills["prayer"], 'Magic':self.skills["magic"], 'Runecrafting':self.skills["runecrafting"], 'Construction':self.skills["construction"], 'Constitution':self.skills["constitution"], 'Agility':self.skills["agility"], 'Herblore':self.skills["herblore"], 'Thieving':self.skills["thieving"], 'Crafting':self.skills["crafting"], 'Fletching':self.skills["fletching"], 'Slayer':self.skills["slayer"],	'Hunter':self.skills["hunter"], 'Mining':self.skills["mining"], 'Smithing':self.skills["smithing"], 'Fishing':self.skills["fishing"], 'Cooking':self.skills["cooking"], 'Firemaking':self.skills["firemaking"], 'Woodcutting':self.skills["woodcutting"], 'Farming':self.skills["farming"], 'Quest Points':self.quest_points, 'Current Task':self.current_task, 'Objectives Completed':self.total}
 
                 if quests_completed:
                     base_line["Quests Completed"] = quests_completed[0]
@@ -305,12 +306,26 @@ def quest_list():
 
 def generate_scenario(character):
     if character.current_task == "":
-        choice = random.randint(1, 11)
-        if choice == 10 and len(character.quests_unlocked) != 0:
+        choice = random.randint(1, 101)
+        if choice >= 98 and len(character.quests_unlocked) != 0:
             quest_list = list(character.quests_unlocked)
             quest_choice = quest_list[random.randint(0, len(character.quests_unlocked)-1)]
             print("You must complete the quest {}".format(quest_choice))
             character.current_task = "quest:"+quest_choice
+            return
+        if choice >= 95:
+            task_choice = random.randint(0,2)
+            if task_choice == 1:
+                print("You must complete a diary task from the area you are currently in.")
+                character.current_task = "task:1"
+                return
+            if task_choice == 2:
+                print("You must complete a diary task from any area apart from the one you are currently in")
+                character.current_task = "task:2"
+                return
+        if choice >= 90:
+            print("Random event! Complete a slayer task!")
+            character.current_task = "slayer"
             return
         else:
             skill_list = ["attack", "strength", "defence", "ranged", "prayer", "magic", "runecrafting", "construction", "constitution", "agility", "herblore", "thieving", "construction", "fletching", "slayer", "hunter", "mining", "smithing", "fishing", "cooking", "firemaking", "woodcutting", "farming"]
@@ -332,7 +347,13 @@ def generate_scenario(character):
         print("You're current task is to complete the quest: {}".format(current_task[1]))
     if current_task[0] == "skill":
         print("You're current task is to level {} by {} level(s) to achieve level {}".format(current_task[1], current_task[2], current_task[3]))
-    
+    if current_task[0] == "task":
+        if current_task[1] == 1:
+            print("Your current task is to complete a diary task from the area you are currently in.")
+        else:
+            print("Your current task is to complete a diary task from any area except the one you are in.")
+    if current_task[0] == "slayer":
+            print("You're current task is to complete a slayer assignment.")
     return
 
 def scenario_complete(character):
@@ -346,12 +367,24 @@ def scenario_complete(character):
         if complete == "y":
             character.update_skills(current_task[1], current_task[2])
             character.current_task = ""
+            character.total = (int)(character.total) + 1
             return True
     if current_task[0] == "quest":
         if complete == "y":
             character.update_complete_quests(current_task[1])
             character.current_task = ""
             return True
+    if current_task[0] == "task":
+        if complete == "y":
+            character.current_task = ""
+            return True
+    if current_task[0] == "slayer":
+        if complete == "y":
+            character.current_task = ""
+            return True
+    if complete == "skip":
+        character.current_task = ""
+        return False
     if complete == "exit":
         return False
 
@@ -365,12 +398,34 @@ for key in quest_list:
 myCharacter.canComplete(quest_list)
 """
 
-character_name = input("Enter your characters name")
+character_name = input("Enter your characters name: ")
+if character_name == "exit":
+    exit()
 myCharacter = Character(character_name)
-flag = True
-print("Enter 'exit' to stop the program.")
-while(flag):
-    generate_scenario(myCharacter)
-    flag = scenario_complete(myCharacter)
+print("Enter 'exit' at any time to go back.")
+game_loop = True
+
+while(game_loop):
+    game_selection = input("1: Generate Scenario \n2: Update Levels\n")
+    if game_selection == "exit":
+        game_loop = False
+        break
+    if game_selection == "1":
+        generate_loop = True
+        while(generate_loop):
+            generate_scenario(myCharacter)
+            generate_loop = scenario_complete(myCharacter)
+    if game_selection == "2":
+        update_loop = True
+        while(update_loop):
+            skill = input("Enter skill to update: ")
+            if skill == "exit":
+                update_loop = False
+                break
+            level = input("Enter level: ")
+            if level == "exit":
+                update_loop = False
+                break
+            myCharacter.skills[skill] = (int)(level)
 
 myCharacter.write_character_to_file()
